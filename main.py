@@ -6,10 +6,6 @@ from motor import Motor
 pygame.init()
 
 
-
-
-
-
 #criação janela
 pygame.display.set_caption("Simulação drone")
 screen = pygame.display.set_mode((1620,960))
