@@ -40,6 +40,7 @@ while running:
         elif event.type == pygame.KEYUP:
             game.pressed[event.key]=False
 
+    
     if game.pressed.get(pygame.K_RIGHT):
         game.player.move_right()
     if game.pressed.get(pygame.K_LEFT):
