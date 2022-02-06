@@ -50,7 +50,8 @@ while running:
         game.player.rotate_left()
     if game.pressed.get(pygame.K_UP):
         game.player.move_forward()
-    game.player.move_down()
+
+    game.player.move_down() #movimento estatico, precisa ser dinamico
     
 
     #atualizar a tela
