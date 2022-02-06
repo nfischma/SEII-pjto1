@@ -1,7 +1,7 @@
 ## Sistemas Embarcados II - Projeto 1
 <br>
 
-# About
+# 💬 About
 -O Projeto consiste em construir um simulador de voo 2D com física utilizando a biblioteca pygame. 
 
 -A física do jogo é baseada na modelagem matématica da malha de controle deste drone.
