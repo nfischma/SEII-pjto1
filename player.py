@@ -32,11 +32,12 @@ class Player(pygame.sprite.Sprite):
         #velocidade de rotaçao dos motores
         self.w = np.transpose(np.array([0.0, 0.0]))
         #forca de controle
-        self.Fc = np.transpose(np.array([ 0.0, np.sum(np.multiply(self.w,self.w)*self.kf)]))
+        self.Fc = np.transpose(np.array([ 0.0, 0.0]))
+        self.Fc[1] = self.kf*(self.w[1]**2+self.w[0]**2)
         #torque de controle
         self.Tc = self.l*self.kf*(self.w[0]**2-self.w[1]**2)
         #matriz de rotacao
-        self.Drb = np.array([[math.cos(self.angle*0.0174533), -math.sin(self.angle*0.0174533)],[math.sin(self.angle*0.0174533), math.cos(self.angle*0.0174533)]]) 
+        self.Drb = np.array([[math.cos((self.angle-90)*0.0174533), -math.sin((self.angle-90)*0.0174533)],[math.sin((self.angle-90)*0.0174533), math.cos((self.angle-90)*0.0174533)]]) 
         #Forca peso
         self.P = -self.m*9.8 #N
 
@@ -47,7 +48,7 @@ class Player(pygame.sprite.Sprite):
         #angulo
         self.angle += self.tau*self.omega
         #forca de controle
-        self.Fc = np.transpose(np.array([ 0, np.sum(np.multiply(self.w,self.w)*self.kf)]))
+        self.Fc[1] = self.kf*(self.w[1]**2+self.w[0]**2)
         #torque de controle
         self.Tc = self.l*self.kf*(self.w[0]**2-self.w[1]**2)
         #matriz de rotacao
@@ -64,14 +65,12 @@ class Player(pygame.sprite.Sprite):
         print("vitesse: ",self.velocity)
         print("pos: ",self.pos)
 
-        self.pos[0] += self.tau*self.velocity[0]
-        self.pos[1] += self.tau*self.velocity[1]
+        
+        self.rot = pygame.transform.rotate(self.image, self.angle)
+        self.pos[0] = self.rect.x-self.rot.get_rect().width/2 + self.tau*self.velocity[0]
+        self.pos[1] = self.rect.y-self.rot.get_rect().height/2 + self.tau*self.velocity[1]
         self.rect.y = self.pos[1]+self.rot.get_rect().height/2
         self.rect.x = self.pos[0]+self.rot.get_rect().width/2 
-        self.rot = pygame.transform.rotate(self.image, self.angle)
-        self.pos[0] = self.rect.x-self.rot.get_rect().width/2
-        self.pos[1] = self.rect.y-self.rot.get_rect().height/2
-        
 
     def move_right(self):
         self.pos[0] += self.velocity[0]
