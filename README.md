@@ -1,10 +1,16 @@
-# SEII-pjto1
-Projeto 1 - Sistemas Embarcados
+## Sistemas Embarcados II - Projeto 1
 
-Eduardo Cunha de Carvalho - 11621EMT003
-João Alberto Andraus Gassan - 11211EMT003
-João Victor Medeiros Rocha - 41621ETE005
-Matheus Alves de Paula - 11521EMT008
-Nicolas Fischmann - 12011EMT032
+# About: O Projeto consiste em construir um simulador de voo 2D com física utilizando a biblioteca pygame. 
+A física do jogo é baseada na modelagem matématica da malha de controle deste drone.
 
-Professor Éder Alves de Moura
+### Desenvolvedores:
+
+ - Eduardo Cunha de Carvalho - 11621EMT003
+ - João Alberto Andraus Gassan - 11211EMT003
+ - João Victor Medeiros Rocha - 41621ETE005
+ - Matheus Alves de Paula - 11521EMT008
+ - Nicolas Fischmann - 12011EMT032
+ 
+ # Orientador:
+
+- Professor Éder Alves de Moura
