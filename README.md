@@ -18,6 +18,6 @@
 
 <br>
  
- ## Orientador
+ ## 🔭 Orientador
 
-- Professor Éder Alves de Moura
+- Dr. Éder Alves de Moura
