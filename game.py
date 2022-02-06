@@ -8,4 +8,6 @@ class Game:
         self.player = Player()
         self.pressed = {
         }
+        self.position = [335, 760]
+        self.angle = 0
 

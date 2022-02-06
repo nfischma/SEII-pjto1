@@ -3,6 +3,7 @@ import pygame
 from game import Game
 from player import Player
 from motor import Motor
+import math
 pygame.init()
 
 
@@ -24,10 +25,9 @@ while running:
     screen.blit(background, (0, 0))
 
     #atualizar posição jogador
-    screen.blit(game.player.image, game.player.rect)
-
-    #atualizar a tela
-    pygame.display.flip()
+    #screen.blit(game.player.image, game.player.rect)
+    screen.blit(game.player.rot,game.player.pos)
+    
 
 
     for event in pygame.event.get():
@@ -39,13 +39,19 @@ while running:
             game.pressed[event.key]=True
         elif event.type == pygame.KEYUP:
             game.pressed[event.key]=False
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            game.position = [a-b for a, b in zip(pygame.mouse.get_pos(),(65,40))]
+            game.angle = math.atan2(game.position[1]-game.player.rect.y, game.position[0]-game.player.rect.x)
+            #playerrot = pygame.transform.rotate(game.player.image, 360-angle*57.29)
 
-    
     if game.pressed.get(pygame.K_RIGHT):
-        game.player.move_right()
+        game.player.rotate_right()
     if game.pressed.get(pygame.K_LEFT):
-        game.player.move_left()
+        game.player.rotate_left()
     if game.pressed.get(pygame.K_UP):
-        game.player.move_up()
-    if game.pressed.get(pygame.K_DOWN):
-        game.player.move_down()
+        game.player.move_forward()
+    game.player.move_down()
+    
+
+    #atualizar a tela
+    pygame.display.flip()
