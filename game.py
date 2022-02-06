@@ -1,6 +1,9 @@
 import pygame
 from player import Player
 from motor import Motor
+from numpy import linalg as la
+import numpy as np
+
 class Game:
 
     def __init__(self):

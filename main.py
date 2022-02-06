@@ -4,6 +4,10 @@ from game import Game
 from player import Player
 from motor import Motor
 import math
+from numpy import linalg as la
+import time
+import numpy as np
+
 pygame.init()
 
 
@@ -19,6 +23,8 @@ game = Game()
 
 running = True
 
+#clock
+clock = time.time()
 
 while running:
     #mostrar o background
@@ -45,14 +51,21 @@ while running:
             #playerrot = pygame.transform.rotate(game.player.image, 360-angle*57.29)
 
     if game.pressed.get(pygame.K_RIGHT):
-        game.player.rotate_right()
+        game.player.motor_right_on()
+    else:
+        game.player.motor_right_off()
     if game.pressed.get(pygame.K_LEFT):
-        game.player.rotate_left()
-    if game.pressed.get(pygame.K_UP):
-        game.player.move_forward()
-
-    game.player.move_down() #movimento estatico, precisa ser dinamico
+        game.player.motor_left_on()
+    else:
+        game.player.motor_left_off()
     
+    if game.pressed.get(pygame.K_UP):
+        pass
+        #game.player.move_forward()
+
+    if time.time()-clock > game.player.tau:
+        game.player.atualizar_dina_cine() #movimento estatico, precisa ser dinamico
+        clock = time.time()
 
     #atualizar a tela
     pygame.display.flip()
