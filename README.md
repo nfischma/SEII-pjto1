@@ -8,7 +8,7 @@
 
 <br>
 
-## Desenvolvedores
+## 🛠 Desenvolvedores
 
  - Eduardo Cunha de Carvalho - 11621EMT003
  - João Alberto Andraus Gassan - 11211EMT003
