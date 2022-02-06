@@ -1,4 +1,4 @@
-## Sistemas Embarcados II - Projeto 1
+## ⚙️ Sistemas Embarcados II - Projeto 1
 <br>
 
 # 💬 About
