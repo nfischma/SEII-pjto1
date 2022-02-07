@@ -62,18 +62,18 @@ class Player(pygame.sprite.Sprite):
         self.velocity[1] +=  self.tau*(1/self.m)*self.P
         # #posicao
         self.rot = pygame.transform.rotate(self.image, self.angle)
-
         self.pos_rot[0] = self.rect.x-self.rot.get_rect().width/2 
         self.pos_dis[0] +=  self.tau*self.velocity[0]*10
         self.pos[0] = self.pos_rot[0] + self.pos_dis[0]
-        if self.rect.y-self.rot.get_rect().height/2 - self.tau*self.velocity[1]*30 <880 :
+        print(self.rect.y-self.rot.get_rect().height/2 - self.pos_dis[1] )
+        if self.pos[1]<880 or self.velocity[1] > 0 :
             self.pos_rot[1] = self.rect.y-self.rot.get_rect().height/2 
             self.pos_dis[1] -= self.tau*self.velocity[1]*10
             self.pos[1] = self.pos_rot[1] + self.pos_dis[1]
         else:
-            self.velocity[1] = 0.0;
-        self.rect.y = self.pos[1]+self.rot.get_rect().height/2
-        self.rect.x = self.pos[0]+self.rot.get_rect().width/2 
+            self.velocity[1] = 5.0;
+        #self.rect.y = self.pos[1]+self.rot.get_rect().height/2
+        #self.rect.x = self.pos[0]+self.rot.get_rect().width/2 
 
 
     def move_right(self):
