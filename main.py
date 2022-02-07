@@ -63,5 +63,6 @@ while running:
         game.player.atualizar_dina_cine() #movimento estatico, precisa ser dinamico
         clock = time.time()
         
+    print(game.position)
     #atualizar a tela
     pygame.display.flip()
