@@ -9,7 +9,7 @@ class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         #parametros
-        self.tau = 0.005 #cste de tempo
+        self.tau = 0.05 #cste de tempo
         self.m = 0.250 #kg
         self.Iz = 2*10**(-4) #kg.m2
         self.l = 0.1 #m
@@ -21,6 +21,9 @@ class Player(pygame.sprite.Sprite):
         self.rect.x = 335
         self.rect.y = 760
         self.rot = pygame.transform.rotate(self.image, 0)
+        self.pos_rot = np.transpose(np.array([self.rect.x-self.rot.get_rect().width/2, self.rect.y-self.rot.get_rect().height/2]))
+        self.pos_dis = np.transpose(np.array([0,0]))
+
         #atitude ?
         self.angle = 0
         #velocidade linear
@@ -37,7 +40,7 @@ class Player(pygame.sprite.Sprite):
         #torque de controle
         self.Tc = self.l*self.kf*(self.w[0]**2-self.w[1]**2)
         #matriz de rotacao
-        self.Drb = np.array([[math.cos((self.angle-90)*0.0174533), -math.sin((self.angle-90)*0.0174533)],[math.sin((self.angle-90)*0.0174533), math.cos((self.angle-90)*0.0174533)]]) 
+        self.Drb = np.array([[math.cos((self.angle)*0.0174533), -math.sin((self.angle)*0.0174533)],[math.sin((self.angle)*0.0174533), math.cos((self.angle)*0.0174533)]]) 
         #Forca peso
         self.P = -self.m*9.8 #N
 
@@ -46,7 +49,7 @@ class Player(pygame.sprite.Sprite):
         #velocidade angular
         self.omega += self.tau*self.Tc/self.Iz
         #angulo
-        self.angle += self.tau*self.omega
+        self.angle += self.tau*self.omega/2
         #forca de controle
         self.Fc[1] = self.kf*(self.w[1]**2+self.w[0]**2)
         #torque de controle
@@ -55,22 +58,23 @@ class Player(pygame.sprite.Sprite):
         self.Drb = np.array([[math.cos(self.angle*0.0174533), -math.sin(self.angle*0.0174533)],[math.sin(self.angle*0.0174533), math.cos(self.angle*0.0174533)]])
         #velocidade linear
         self.velocity += self.tau*(1/self.m)*(np.dot(self.Drb,self.Fc))
-        #self.velocity[1] -=  self.tau*(1/self.m)*self.P
+        #self.velocity -= self.tau*np.multiply(self.velocity,self.velocity)*10
+        self.velocity[1] +=  self.tau*(1/self.m)*self.P
         # #posicao
-        print("moteurs: ", self.w)
-        print("Fc: ", self.Fc)
-        print("Tc: ", self.Tc )
-        print("omega: ",self.omega)
-        print("angle: ", self.angle)
-        print("vitesse: ",self.velocity)
-        print("pos: ",self.pos)
-
-        
         self.rot = pygame.transform.rotate(self.image, self.angle)
-        self.pos[0] = self.rect.x-self.rot.get_rect().width/2 + self.tau*self.velocity[0]
-        self.pos[1] = self.rect.y-self.rot.get_rect().height/2 + self.tau*self.velocity[1]
+
+        self.pos_rot[0] = self.rect.x-self.rot.get_rect().width/2 
+        self.pos_dis[0] +=  self.tau*self.velocity[0]*10
+        self.pos[0] = self.pos_rot[0] + self.pos_dis[0]
+        if self.rect.y-self.rot.get_rect().height/2 - self.tau*self.velocity[1]*30 <880 :
+            self.pos_rot[1] = self.rect.y-self.rot.get_rect().height/2 
+            self.pos_dis[1] -= self.tau*self.velocity[1]*10
+            self.pos[1] = self.pos_rot[1] + self.pos_dis[1]
+        else:
+            self.velocity[1] = 0.0;
         self.rect.y = self.pos[1]+self.rot.get_rect().height/2
         self.rect.x = self.pos[0]+self.rot.get_rect().width/2 
+
 
     def move_right(self):
         self.pos[0] += self.velocity[0]
@@ -96,16 +100,19 @@ class Player(pygame.sprite.Sprite):
 
 #funcoes de ligacao e desligacao dos motores para testes dinamicos
     def motor_right_on(self):
-        self.w[1] = 20000.0
-    
-    def motor_right_off(self):
-        self.w[1] = 0
+        self.w[1] = 10000.0
 
     def motor_left_on(self):
-        self.w[0] = 20000.0
+        self.w[0] = 10000.0
 
-    def motor_left_off(self):
-        self.w[0] = 0
+    def motors_off(self):
+        self.w[0] = 0.0
+        self.w[1] = 0.0
+
+    def motor_lr_on(self):
+        self.w[0] = 10000.0
+        self.w[1] = 10000.0
+
 
     
 

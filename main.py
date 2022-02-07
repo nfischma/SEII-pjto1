@@ -52,20 +52,16 @@ while running:
 
     if game.pressed.get(pygame.K_RIGHT):
         game.player.motor_right_on()
-    else:
-        game.player.motor_right_off()
-    if game.pressed.get(pygame.K_LEFT):
+    elif game.pressed.get(pygame.K_LEFT):
         game.player.motor_left_on()
+    elif game.pressed.get(pygame.K_UP):
+        game.player.motor_lr_on()
     else:
-        game.player.motor_left_off()
-    
-    if game.pressed.get(pygame.K_UP):
-        pass
-        #game.player.move_forward()
+        game.player.motors_off()
 
     if time.time()-clock > game.player.tau:
         game.player.atualizar_dina_cine() #movimento estatico, precisa ser dinamico
         clock = time.time()
-
+        
     #atualizar a tela
     pygame.display.flip()
