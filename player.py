@@ -1,5 +1,4 @@
 import pygame
-from motor import Motor
 import math
 import numpy as np
 from numpy import linalg as la
@@ -28,9 +27,9 @@ class Player(pygame.sprite.Sprite):
         self.rect.y = 760
         self.rot = pygame.transform.rotate(self.image, 0)
         self.pos_rot = np.transpose(np.array([self.rect.x-self.rot.get_rect().width/2, self.rect.y-self.rot.get_rect().height/2]))
-        self.pos_dis = np.transpose(np.array([0,0]))
+        self.colisaoh = "none"
+        self.colisaov = "none"
 
-        
 
         #tempo
         self.t = [0.0,self.tau]
@@ -40,17 +39,17 @@ class Player(pygame.sprite.Sprite):
 
         #r
         #posicao
-        self.pos = np.transpose(np.array([self.rect.x-self.rot.get_rect().width/2, self.rect.y-self.rot.get_rect().height/2]))
+        self.pos = [self.rect.x-self.rot.get_rect().width/2, self.rect.y-self.rot.get_rect().height/2]
         #listas posiçoes
-        self.r = np.copy(self.pos) + np.copy(self.pos)
+        self.r = np.array([[0.0,0.0],[0.0,0.0]])
         #comando de posicao
-        self.rbarra = 0.0
+        self.rbarra = [0.0,0.0]
 
         #v
         #velocidade linear
-        self.velocity = np.transpose(np.array([0.0, 0.0]))
+        self.velocity = [0.0, 0.0]
         #lista velocidades
-        self.dr = [0.0, (self.r[1]-self.r[0])/self.tau]
+        self.dr = np.array([[0.0,0.0],[0.0, 0.0]])
 
         #phi
         #atitude
@@ -64,7 +63,7 @@ class Player(pygame.sprite.Sprite):
         #velocidade angular
         self.omega = 0.0
         #lista velocidade angular
-        self.dphi = [0.0, (self.phi[1]-self.phi[0])/self.tau]
+        self.dphi = [0.0, 0.0]
 
         #Drb
         #matriz de rotacao
@@ -94,44 +93,79 @@ class Player(pygame.sprite.Sprite):
         #Tc de comando
         self.Tcbarra = 0.0
 
+        #lista de erros dos controladores
+        self.erroCp = [0.0, 0.0]
+        self.erroCa = [0.0, 0.0]
+        self.erroCw = [0.0, 0.0]
 
-    def atualizar_posição_tela(self):
+
+    def atualizar_posicao_tela(self):
         #atualiza a posição e a rotação do robo na tela
-        # #posicao
+        #atualizar angulo
+        self.angle = self.phi[-1]
+        self.omega = self.dphi[-1]
         self.rot = pygame.transform.rotate(self.image, self.angle)
         self.pos_rot[0] = self.rect.x-self.rot.get_rect().width/2 
-        ##self.pos_dis[0] +=  self.tau*self.velocity[0]*10
-        ##self.pos[0] = self.pos_rot[0] + self.pos_dis[0]
-        self.pos[0] = self.x[-1]
-        self.pos[1] = self.y[-1]
 
-        
-        ##print(self.rect.y-self.rot.get_rect().height/2 - self.pos_dis[1] )
-        ##if self.pos[1]<880 or self.velocity[1] > 0 :
-        ##    self.pos_rot[1] = self.rect.y-self.rot.get_rect().height/2 
-        ##    self.pos_dis[1] -= self.tau*self.velocity[1]*10
-        ##    self.pos[1] = self.pos_rot[1] + self.pos_dis[1]
-        ##else:
-        ##    self.velocity[1] = 5.0;
-        
+        #atualizar posicao
+        self.pos[0] = self.pos_rot[0] + self.r[:,-1][0]
+        self.pos[1] = self.pos_rot[1] + self.r[:,-1][1]
+
+        #atualizar rect
         self.rect.y = self.pos[1]+self.rot.get_rect().height/2
         self.rect.x = self.pos[0]+self.rot.get_rect().width/2 
+
 
     def Cp(self):
         #Controlador da posicção: 
         #entrada r,v e saida Fcbarra, phibarra
-        pass
+        #parametros pid
+        Kp = 1.0;
+        Ki = 0.0;
+        Kd = 0.0;
+
+        #phibarra
+        self.phibarra = math.atan2(self.rbarra[1]-self.pos[1], self.rbarra[0]-self.pos[0])
+        
+        #calculo do erro para Fcbarra
+        erro = self.rbarra - self.r[:,-1]
+        self.erroCp += [math.sqrt(erro[0]**2 + erro[1]**2)]
+
+        #correção do erro
+        Cpp = Kp*self.erroCp[-1]
+        Cpi = Ki*(self.erroCp[-1]+self.erroCp[-2])*self.tau/2
+        Cpd = Kd*math.sqrt(self.dr[:,-1][0]**2+self.dr[:,-1][1]**2)
+        
+        self.Fcbarra = Cpp + Cpi + Cpd
+
 
     def Ca(self):
         #controlador do angulo
         #entrada phi,omega e saida Tcbarra
-        pass
-        
+        #parametros pid
+        Kp = 1.0;
+        Ki = 0.0;
+        Kd = 0.0;
+
+        #calculo do erro para Tcbarra
+        self.erroCa += [self.phibarra-self.phi[-1]]
+
+        #correção do erro
+        Cpp = Kp*self.erroCa[-1]
+        Cpi = Ki*(self.erroCa[-1]+self.erroCa[-2])*self.tau/2
+        Cpd = Kd*self.dphi[-1]
+
+        self.Tcbarra = Cpp + Cpi + Cpd
+
 
     def Cw(self):
         #Controlador dos motores:
-        #entrada Fc,Tc e saida a velocidade de rotação dos motores
-        pass
+        #entrada Fcbarra,Tcbarra e saida wbarra
+        F1 = (self.Fcbarra+self.Tcbarra/self.l)/2
+        F2 = (self.Fcbarra-self.Tcbarra/self.l)/2
+        self.wbarra[0] = math.sqrt(abs(F1))/self.kf
+        self.wbarra[1] = math.sqrt(abs(F2))/self.kf
+        
 
     def din_robo(y, t, wbarra):
         # Parametros da planta
@@ -165,6 +199,9 @@ class Player(pygame.sprite.Sprite):
 
 
     def atualizar_dinamica(self):
+        #posicao e angulo na tela
+        self.atualizar_posicao_tela()
+
         #FC e phibarra
         self.Cp()
         #Tc
@@ -174,28 +211,45 @@ class Player(pygame.sprite.Sprite):
 
         #dinamica robo
         # Evoluindo a din. da planta
+        #condições iniciais
         w0 = self.w
-        r0 = self.r[1]
-        v0 = self.dr[1]
-        phi0 = self.phi[1]
-        omega0 = self.dphi[1]
+        r0 = self.r[:,-1]
+        r0[1] = -r0[1]
+        v0 = self.dr[:,-1]
+        v0[1] = -v0[1]
+        phi0 = self.phi[-1]
+        omega0 = self.dphi[-1]
         x0 = [w0, r0, v0, phi0, omega0]   # condicao inicial
+        #calculo eq. dif.
         sol = odeint(self.din_robo, x0, [0.0, self.tau], args=(self.wbarra,))
-        
+        #solucao eq. dif.
         self.w = sol[:,0][-1]
-        self.r += sol[:,1][-1]
-        self.dr += sol[:,2][-1]
+        self.r = np.concatenate((self.r,sol[:,1][-1]), axis=1)
+        self.r[:,-1][1] = -self.r[:,-1][1]
+        self.dr += np.concatenate((self.dr,sol[:,2][-1]), axis=1)
+        self.dr[:,-1][1] = -self.dr[:,-1][1]
         self.phi += sol[:,3][-1]
         self.dphi += sol[:,4][-1]
         self.t += self.tau
 
-        #atualizar posicao
-        self.pos = self.r[-1]
-        self.velocity = self.dr[-1]
-        self.angle = self.phi[-1]
-        self.omega = self.dphi[-1]
+        print(self.w, self.r[:,-1])
+        print(self.dr[:,-1], self.dphi[-1])
         
+    def rebote(self):
+        if self.colisaoh == "right" & self.dr[:,-1][0] > 0:
+            self.dr[:,-1][0] = -self.dr[:,-1][0]*30/100
+            self.colisaoh = "none"
+        elif self.colisaoh == "left" & self.dr[:,-1][0] < 0:
+            self.dr[:,-1][0] = -self.dr[:,-1][0]*30/100
+            self.colisaoh = "none"
+        if self.colisaov == "up" & self.dr[:,-1][1] < 0:
+            self.dr[:,-1][1] = -self.dr[:,-1][1]*30/100
+            self.colisaov = "none"
+        elif self.colisaov == "down" & self.dr[:,-1][1] > 0:
+            self.dr[:,-1][1] = -self.dr[:,-1][1]*30/100
+            self.colisaov = "none"
         
+
 
 
 

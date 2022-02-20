@@ -2,11 +2,12 @@
 import pygame
 from game import Game
 from player import Player
-from motor import Motor
 import math
 from numpy import linalg as la
 import time
 import numpy as np
+import matplotlib.pyplot as plt
+from control.matlab import *
 
 pygame.init()
 
@@ -47,20 +48,15 @@ while running:
             game.pressed[event.key]=False
         elif event.type == pygame.MOUSEBUTTONDOWN:
             game.position = [a-b for a, b in zip(pygame.mouse.get_pos(),(65,40))]
-            game.angle = math.atan2(game.position[1]-game.player.rect.y, game.position[0]-game.player.rect.x)
+            game.player.rbarra[0] = game.position[0]
+            game.player.rbarra[1] = game.position[1]
             #playerrot = pygame.transform.rotate(game.player.image, 360-angle*57.29)
 
-    if game.pressed.get(pygame.K_RIGHT):
-        game.player.motor_right_on()
-    elif game.pressed.get(pygame.K_LEFT):
-        game.player.motor_left_on()
-    elif game.pressed.get(pygame.K_UP):
-        game.player.motor_lr_on()
-    else:
-        game.player.motors_off()
 
     if time.time()-clock > game.player.tau:
-        game.player.atualizar_dina_cine() #movimento estatico, precisa ser dinamico
+
+        game.player.atualizar_dinamica() #movimento estatico, precisa ser dinamico
+        
         clock = time.time()
         
     print(game.position)
