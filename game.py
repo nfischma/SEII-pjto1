@@ -13,4 +13,6 @@ class Game:
         self.pressed = {
         }
         self.position = [335, 760]
+        self.player.rbarra[0] = self.position[0]
+        self.player.rbarra[1] = self.position[1]
 

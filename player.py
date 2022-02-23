@@ -14,7 +14,7 @@ class Player(pygame.sprite.Sprite):
         super().__init__()
 
         #parametros
-        self.tau = 0.005 #cste de tempo
+        self.tau = 0.05 #cste de tempo
         self.m = 0.250 #kg
         self.Iz = 2*10**(-4) #kg.m2
         self.l = 0.1 #m
@@ -170,7 +170,7 @@ class Player(pygame.sprite.Sprite):
     def din_robo(self, y, t, wbarra):
         # Parametros da planta
          #parametros
-        tau = 0.005         #cste de tempo
+        tau = 0.05         #cste de tempo
         m = 0.250           #kg
         Iz = 2*10**(-4)     #kg.m2
         l = 0.1             #m
@@ -178,10 +178,10 @@ class Player(pygame.sprite.Sprite):
         kf = 1.744*10**(-8) #constante de força
         P = m*9.8           #N
 
-        w, r, v, phi = y
-
-        omega = phi[1]
-        phi - phi[0]
+        w0,w1, r0,r1, v0,v1, phi, omega = y
+        w = [w0,w1]
+        r = [r0,r1]
+        v = [v0,v1]
         #forca de controle
         Fc = np.transpose(np.array([0,kf*(w[1]**2+w[0]**2)]))
         #torque de controle
@@ -200,10 +200,11 @@ class Player(pygame.sprite.Sprite):
         vp = np.dot(Drb,Fc)/m
         vp[1] = vp[1] + P/m
         vp = vp.tolist()
-        phip = [omega, Tc/Iz]
+        phip = omega
+        dphip = Tc/Iz
 
 
-        return [wp, rp, vp, phip]
+        return [wp[0],wp[1], rp[0],rp[1], vp[0],vp[1], phip, dphip]
 
 
     def atualizar_dinamica(self):
@@ -228,25 +229,24 @@ class Player(pygame.sprite.Sprite):
         v0 = self.dr[:,-1]
         v0[1] = -v0[1]
         v0 = v0.tolist()
-        phi0 = [self.phi[-1],self.dphi[-1]]
-        x0 = [w0, r0, v0, phi0]   # condicao inicial
+        phi0 = self.phi[-1]
+        dphi0 = self.dphi[-1]
+        x0 = [w0[0], w0[1], r0[0], r0[1], v0[0], v0[1], phi0, dphi0]   # condicao inicial
 
-        #ODEINT NAO FUNCIONANDO TENTAR COM REPRESENTACAO DE ESTADOS
+        #TENTAR COM RK4
         #calculo eq. dif.
         sol = odeint(self.din_robo, x0, [0.0, self.tau], args=(self.wbarra,))
         
         #solucao eq. dif.
-        self.w = sol[:,0][-1]
-        self.r = np.concatenate((self.r,sol[:,1][-1]), axis=1)
-        self.r[:,-1][1] = -self.r[:,-1][1]
-        self.dr += np.concatenate((self.dr,sol[:,2][-1]), axis=1)
-        self.dr[:,-1][1] = -self.dr[:,-1][1]
-        self.phi += sol[:,3][-1][0]
-        self.dphi += sol[:,3][-1][1]
-        self.t += self.tau
-
-        print(self.w, self.r[:,-1])
-        print(self.dr[:,-1], self.dphi[-1])
+        self.w[0] = sol[:,0][-1]
+        self.w[1] = sol[:,1][-1]
+        r1 = np.transpose(np.array([[sol[:,2][-1],-sol[:,3][-1]]]))
+        self.r = np.concatenate((self.r,r1), axis=1)
+        dr1 = np.transpose(np.array([[sol[:,4][-1],-sol[:,5][-1]]]))
+        self.dr = np.concatenate((self.dr,dr1), axis=1)
+        self.phi += [sol[:,6][-1]]
+        self.dphi += [sol[:,7][-1]]
+        self.t += [self.t[-1] + self.tau]
         
     def rebote(self):
         if self.colisaoh == "right" & self.dr[:,-1][0] > 0:
@@ -340,3 +340,8 @@ class Player(pygame.sprite.Sprite):
     def move_backward(self):
         pass
     
+
+
+if __name__ == "__main__":
+    player = Player()
+    player.atualizar_dinamica()

@@ -26,14 +26,9 @@ running = True
 
 #clock
 clock = time.time()
+begin = time.time()
 
 while running:
-    #mostrar o background
-    screen.blit(background, (0, 0))
-
-    #atualizar posição jogador
-    #screen.blit(game.player.image, game.player.rect)
-    screen.blit(game.player.rot,game.player.pos)
     
 
 
@@ -53,12 +48,23 @@ while running:
             #playerrot = pygame.transform.rotate(game.player.image, 360-angle*57.29)
 
 
-    if time.time()-clock > game.player.tau:
+    if time.time()-clock >= game.player.tau:
+        print("")
+        print("tempo de atrazo                      :", time.time()-clock-game.player.tau)
+        #mostrar o background
+        screen.blit(background, (0, 0))
 
-        game.player.atualizar_dinamica() #movimento estatico, precisa ser dinamico
+        #atualizar posição jogador
+        #screen.blit(game.player.image, game.player.rect)
+        screen.blit(game.player.rot,game.player.pos)
+    
         
         clock = time.time()
+        print(time.time()-clock)
+        game.player.atualizar_dinamica() #movimento estatico, precisa ser dinamico
+        print("tempo de calculo da dinamica         :", time.time()-clock)
+        print("atrazo total                         :", time.time()-begin-game.player.t[-1])
         
-    print(game.position)
+        print("tempo :", game.player.t[-1], "          rbarra :", game.player.rbarra, "         pos :", game.player.pos)
     #atualizar a tela
     pygame.display.flip()
