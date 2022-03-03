@@ -167,10 +167,10 @@ class Player(pygame.sprite.Sprite):
         self.wbarra[1] = math.sqrt(abs(F2))/self.kf
         
 
-    def din_robo(self, y, t, wbarra):
+    def din_robo(self, y, t, wbarra, tempo):
         # Parametros da planta
          #parametros
-        tau = 0.05         #cste de tempo
+        tau = tempo         #cste de tempo
         m = 0.250           #kg
         Iz = 2*10**(-4)     #kg.m2
         l = 0.1             #m
@@ -207,7 +207,7 @@ class Player(pygame.sprite.Sprite):
         return [wp[0],wp[1], rp[0],rp[1], vp[0],vp[1], phip, dphip]
 
 
-    def atualizar_dinamica(self):
+    def atualizar_dinamica(self, tempo):
         #posicao e angulo na tela
         self.atualizar_posicao_tela()
 
@@ -235,7 +235,7 @@ class Player(pygame.sprite.Sprite):
 
         #TENTAR COM RK4
         #calculo eq. dif.
-        sol = odeint(self.din_robo, x0, [0.0, self.tau], args=(self.wbarra,))
+        sol = odeint(self.din_robo, x0, [0.0, self.tau], args=(self.wbarra,tempo,))
         
         #solucao eq. dif.
         self.w[0] = sol[:,0][-1]
@@ -246,7 +246,7 @@ class Player(pygame.sprite.Sprite):
         self.dr = np.concatenate((self.dr,dr1), axis=1)
         self.phi += [sol[:,6][-1]]
         self.dphi += [sol[:,7][-1]]
-        self.t += [self.t[-1] + self.tau]
+        self.t += [self.t[-1] + tempo]
         
     def rebote(self):
         if self.colisaoh == "right" & self.dr[:,-1][0] > 0:

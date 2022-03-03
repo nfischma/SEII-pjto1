@@ -27,6 +27,10 @@ running = True
 #clock
 clock = time.time()
 begin = time.time()
+fim_calculo = time.time()
+tempo_calculo_din = 0.05
+
+
 
 while running:
     
@@ -49,6 +53,7 @@ while running:
 
 
     if time.time()-clock >= game.player.tau:
+        
         print("")
         print("tempo de atrazo                      :", time.time()-clock-game.player.tau)
         #mostrar o background
@@ -60,10 +65,14 @@ while running:
     
         
         clock = time.time()
-        print(time.time()-clock)
-        game.player.atualizar_dinamica() #movimento estatico, precisa ser dinamico
-        print("tempo de calculo da dinamica         :", time.time()-clock)
-        print("atrazo total                         :", time.time()-begin-game.player.t[-1])
+        comeco_calculo = time.time()
+        if(fim_calculo==0):
+            fim_calculo = comeco_calculo+0.05
+        game.player.atualizar_dinamica(tempo_calculo_din) #movimento estatico, precisa ser dinamico
+        fim_calculo = time.time()
+        tempo_calculo_din = fim_calculo - comeco_calculo
+        print("tempo de calculo da dinamica         :", tempo_calculo_din)
+        print("atrazo total                         :", fim_calculo-begin-game.player.t[-1])
         
         print("tempo :", game.player.t[-1], "          rbarra :", game.player.rbarra, "         pos :", game.player.pos)
     #atualizar a tela
