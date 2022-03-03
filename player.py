@@ -108,8 +108,8 @@ class Player(pygame.sprite.Sprite):
         self.pos_rot[0] = self.rect.x-self.rot.get_rect().width/2 
 
         #atualizar posicao
-        self.pos[0] = self.pos_rot[0] + self.r[:,-1][0]
-        self.pos[1] = self.pos_rot[1] + self.r[:,-1][1]
+        self.pos[0] = self.pos_rot[0] + self.r[:,-1][0]/100
+        self.pos[1] = self.pos_rot[1] + self.r[:,-1][1]/100
 
         #atualizar rect
         self.rect.y = self.pos[1]+self.rot.get_rect().height/2

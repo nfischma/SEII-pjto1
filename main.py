@@ -71,6 +71,7 @@ while running:
         game.player.atualizar_dinamica(tempo_calculo_din) #movimento estatico, precisa ser dinamico
         fim_calculo = time.time()
         tempo_calculo_din = fim_calculo - comeco_calculo
+        
         print("tempo de calculo da dinamica         :", tempo_calculo_din)
         print("atrazo total                         :", fim_calculo-begin-game.player.t[-1])
         
