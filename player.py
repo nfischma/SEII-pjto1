@@ -157,7 +157,7 @@ class Player(pygame.sprite.Sprite):
         print("fcbarra :", self.Fcbarra, "      phibarra :", self.phibarra)
         
 
-        
+
         # if(self.phibarra > math.pi / 2):
         #     if self.phibarra%(2*math.pi) > math.pi / 2 and self.phibarra%(2*math.pi) < 3*math.pi / 2 :
         #         self.phibarra = self.phibarra%(2*math.pi) - math.pi
@@ -280,10 +280,10 @@ class Player(pygame.sprite.Sprite):
         w0 = self.w
         w0 = w0.tolist()
         r0 = self.r[:,-1]
-        r0[1] = -r0[1]
+        r0[1] = r0[1]
         r0 = r0.tolist()
         v0 = self.dr[:,-1]
-        v0[1] = -v0[1]
+        v0[1] = v0[1]
         v0 = v0.tolist()
         phi0 = self.phi[-1]
         dphi0 = self.dphi[-1]
@@ -296,26 +296,32 @@ class Player(pygame.sprite.Sprite):
         #solucao eq. dif.
         self.w[0] = sol[:,0][-1]
         self.w[1] = sol[:,1][-1]
-        r1 = np.transpose(np.array([[sol[:,2][-1],-sol[:,3][-1]]]))
+        r1 = np.transpose(np.array([[sol[:,2][-1],sol[:,3][-1]]]))
         self.r = np.concatenate((self.r,r1), axis=1)
-        dr1 = np.transpose(np.array([[sol[:,4][-1],-sol[:,5][-1]]]))
+        dr1 = np.transpose(np.array([[sol[:,4][-1],sol[:,5][-1]]]))
         self.dr = np.concatenate((self.dr,dr1), axis=1)
         self.phi += [sol[:,6][-1]]
         self.dphi += [sol[:,7][-1]]
         self.t += [self.t[-1] + tempo]
         
     def rebote(self):
-        if self.colisaoh == "right" & self.dr[:,-1][0] > 0:
-            self.dr[:,-1][0] = -self.dr[:,-1][0]*30/100
+        print("colisaoh :", self.colisaoh, "        colisaov :", self.colisaov)
+        print("dx :", self.dr[:,-1][0], "         dy :", self.dr[:,-1][1])
+        if self.colisaoh == "right" and self.dr[:,-1][0] > 0:
+            self.dr[:,-1][0] = -self.dr[:,-1][0]*80/100
+            self.velocitu[0] = -self.velocity[0]
             self.colisaoh = "none"
-        elif self.colisaoh == "left" & self.dr[:,-1][0] < 0:
-            self.dr[:,-1][0] = -self.dr[:,-1][0]*30/100
+        elif self.colisaoh == "left" and self.dr[:,-1][0] < 0:
+            self.dr[:,-1][0] = -self.dr[:,-1][0]*80/100
+            self.velocity[0] = -self.velocity[0]
             self.colisaoh = "none"
-        if self.colisaov == "up" & self.dr[:,-1][1] < 0:
-            self.dr[:,-1][1] = -self.dr[:,-1][1]*30/100
+        if self.colisaov == "up" and self.dr[:,-1][1] < 0:
+            self.dr[:,-1][1] = -self.dr[:,-1][1]*80/100
+            self.velocity[1] = -self.velocity[1]
             self.colisaov = "none"
-        elif self.colisaov == "down" & self.dr[:,-1][1] > 0:
-            self.dr[:,-1][1] = -self.dr[:,-1][1]*30/100
+        elif self.colisaov == "down" and self.dr[:,-1][1] > 0:
+            self.dr[:,-1][1] = -self.dr[:,-1][1]*80/100
+            self.velocity[1] = -self.velocity[1]
             self.colisaov = "none"
         
 
@@ -335,67 +341,6 @@ class Player(pygame.sprite.Sprite):
 
 
 
-
-
-
-#funcoes de teste
-    def move_right(self):
-        self.pos[0] += self.velocity[0]
-        self.rect.x = self.pos[0]+self.rot.get_rect().width/2
-    
-    def move_left(self):
-        self.pos[0] -= self.velocity[0]
-        self.rect.x = self.pos[0]+self.rot.get_rect().width/2
-
-    def move_up(self):
-        self.pos[1] -= self.velocity[0]
-        self.rect.y = self.pos[1]+self.rot.get_rect().height/2
-    
-    def move_down(self):
-        self.pos[1] += 0.3
-        self.rect.y = self.pos[1]+self.rot.get_rect().height/2
-
-    def rotate_right(self):
-        self.angle -= self.omega
-        self.rot = pygame.transform.rotate(self.image, self.angle)
-        self.pos[0] = self.rect.x-self.rot.get_rect().width/2
-        self.pos[1] = self.rect.y-self.rot.get_rect().height/2
-
-#funcoes de ligacao e desligacao dos motores para testes dinamicos
-    def motor_right_on(self):
-        self.w[1] = 10000.0
-
-    def motor_left_on(self):
-        self.w[0] = 10000.0
-
-    def motors_off(self):
-        self.w[0] = 0.0
-        self.w[1] = 0.0
-
-    def motor_lr_on(self):
-        self.w[0] = 10000.0
-        self.w[1] = 10000.0
-
-
-    
-
-
-#funções de teste para controle estatico
-    def rotate_left(self):
-        self.angle += self.omega
-        self.rot = pygame.transform.rotate(self.image, self.angle)
-        self.pos[0] = self.rect.x-self.rot.get_rect().width/2
-        self.pos[1] = self.rect.y-self.rot.get_rect().height/2
-    
-    def move_forward(self):
-        self.pos[0] -= math.cos((self.angle-90)*0.0174533)*la.norm(self.velocity)
-        self.pos[1] += math.sin((self.angle-90)*0.0174533)*la.norm(self.velocity)
-        self.rect.x = self.pos[0]+self.rot.get_rect().width/2
-        self.rect.y = self.pos[1]+self.rot.get_rect().height/2
-
-    def move_backward(self):
-        pass
-    
 
 
 if __name__ == "__main__":

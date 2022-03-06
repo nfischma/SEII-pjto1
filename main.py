@@ -8,6 +8,7 @@ import time
 import numpy as np
 import matplotlib.pyplot as plt
 from control.matlab import *
+from wall import Wall
 
 pygame.init()
 
@@ -49,21 +50,29 @@ while running:
             game.position = [a-b for a, b in zip(pygame.mouse.get_pos(),(65,40))]
             game.player.rbarra[0] = game.position[0]-game.player.pos_init[0]
             game.player.rbarra[1] = -game.position[1]+game.player.pos_init[1]
-            #playerrot = pygame.transform.rotate(game.player.image, 360-angle*57.29)
 
 
     if time.time()-clock >= game.player.tau:
+        
+                #Detetar colisao
+        for wall in game.walls:
+            print("tipo de muro :", wall.tipo)
+            if wall.tipo == "horizontal":
+                game.player.colisaoh = wall.detecao_colisaoh(game.player.pos)
+            elif wall.tipo == "vertical":
+                game.player.colisaov = wall.detecao_colisaov(game.player.pos)
+        
+        #rebotar
+        game.player.rebote()
         
         print("")
         print("")
         print("tempo :", game.player.t[-1], "          rbarra :", game.player.rbarra, "         pos :", game.player.pos)
         print("erroCA :", game.player.erroCa[-1], "    erroCw :", game.player.erroCp[-1], "     erroCp", game.player.erroCp[-1])
-        #print("tempo de atrazo                      :", time.time()-clock-game.player.tau)
         #mostrar o background
         screen.blit(background, (0, 0))
 
         #atualizar posição jogador
-        #screen.blit(game.player.image, game.player.rect)
         screen.blit(game.player.rot,game.player.pos)
     
         
@@ -74,9 +83,10 @@ while running:
         game.player.atualizar_dinamica(tempo_calculo_din) #movimento estatico, precisa ser dinamico
         fim_calculo = time.time()
         tempo_calculo_din = fim_calculo - comeco_calculo
-        
-        #print("tempo de calculo da dinamica         :", tempo_calculo_din)
-        #print("atrazo total                         :", fim_calculo-begin-game.player.t[-1])
+
+
+
+
         
         
     #atualizar a tela
