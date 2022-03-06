@@ -121,12 +121,21 @@ class Player(pygame.sprite.Sprite):
         #entrada r,v e saida Fcbarra, phibarra
         #parametros pid
         Kp = 1.0;
-        Ki = 1.0;
+        Ki = 10.0;
         Kd = 1.0;
 
         #phibarra
         self.phibarra = math.atan2(self.rbarra[1]-self.pos[1], self.rbarra[0]-self.pos[0])
-        
+        if(self.phibarra > math.pi / 2):
+            if self.phibarra%(2*math.pi) > math.pi / 2 and self.phibarra%(2*math.pi) < 3*math.pi / 2 :
+                self.phibarra = self.phibarra%(2*math.pi) - math.pi
+            else: 
+                self.phibarra = self.phibarra%(2*math.pi)
+        elif(self.phibarra < -math.pi / 2):
+            if self.phibarra%(2*math.pi) <-math.pi/2 and self.phibarra%(2*math.pi) >-3*math.pi/2 :
+                self.phibarra = self.phibarra%(2*math.pi) + math.pi
+            else: 
+                self.phibarra = self.phibarra %(2*math.pi)
         #calculo do erro para Fcbarra
         erro = self.rbarra - self.r[:,-1]
         self.erroCp += [math.sqrt(erro[0]**2 + erro[1]**2)]
@@ -137,6 +146,9 @@ class Player(pygame.sprite.Sprite):
         Cpd = Kd*math.sqrt(self.dr[:,-1][0]**2+self.dr[:,-1][1]**2)
         
         self.Fcbarra = Cpp + Cpi + Cpd
+        print("Cp")
+        print("r :", self.r[:,-1], "      v :", self.dr[:,-1])
+        print("fcbarra :", self.Fcbarra, "      phibarra :", self.phibarra)
 
 
     def Ca(self):
@@ -145,16 +157,17 @@ class Player(pygame.sprite.Sprite):
         #parametros pid
         Kp = 1.0;
         Ki = 1.0;
-        Kd = 1.0;
+        Kd = 10.0;
 
         #calculo do erro para Tcbarra
         self.erroCa += [self.phibarra-self.phi[-1]]
-
+        print("Ca")
+        print("phi :", self.phi[-1],"      self.dphi :", self.dphi[-1])
         #correção do erro
         Cpp = Kp*self.erroCa[-1]
         Cpi = Ki*(self.erroCa[-1]+self.erroCa[-2])*self.tau/2
         Cpd = Kd*self.dphi[-1]
-
+        print("Tcbarra :", self.Tcbarra)
         self.Tcbarra = Cpp + Cpi + Cpd
 
 
@@ -163,8 +176,24 @@ class Player(pygame.sprite.Sprite):
         #entrada Fcbarra,Tcbarra e saida wbarra
         F1 = (self.Fcbarra+self.Tcbarra/self.l)/2
         F2 = (self.Fcbarra-self.Tcbarra/self.l)/2
-        self.wbarra[0] = math.sqrt(abs(F1))/self.kf
-        self.wbarra[1] = math.sqrt(abs(F2))/self.kf
+        self.wbarra[1] = math.sqrt(abs(F1))/self.kf
+        self.wbarra[0] = math.sqrt(abs(F2))/self.kf
+        if abs(self.wbarra[0])> self.wmax and abs(self.wbarra[1])>self.wmax:
+            maxi = 0 
+            for i in range(len(self.wbarra)):
+                if(self.wbarra[i]>maxi):
+                    maxi = self.wbarra[i]
+            self.wbarra[0] = self.wbarra[0]*self.wmax/maxi
+            self.wbarra[1] = self.wbarra[1]*self.wmax/maxi
+        else:
+            for wrotor in self.wbarra:
+                if wrotor > self.wmax:
+                    wrtor = self.wmax
+                elif wrotor < -self.wmax:
+                    wrotor = -self.wmax
+        print("Cw")
+        print("Fcbarra :", self.Fcbarra, "      Tcbarra :", self.Tcbarra)
+        print("wbarra :", self.wbarra)
         
 
     def din_robo(self, y, t, wbarra, tempo):

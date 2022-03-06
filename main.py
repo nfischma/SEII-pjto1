@@ -55,7 +55,10 @@ while running:
     if time.time()-clock >= game.player.tau:
         
         print("")
-        print("tempo de atrazo                      :", time.time()-clock-game.player.tau)
+        print("")
+        print("tempo :", game.player.t[-1], "          rbarra :", game.player.rbarra, "         pos :", game.player.pos)
+        print("erroCA :", game.player.erroCa[-1], "    erroCw :", game.player.erroCp[-1], "     erroCp", game.player.erroCp[-1])
+        #print("tempo de atrazo                      :", time.time()-clock-game.player.tau)
         #mostrar o background
         screen.blit(background, (0, 0))
 
@@ -72,10 +75,9 @@ while running:
         fim_calculo = time.time()
         tempo_calculo_din = fim_calculo - comeco_calculo
         
-        print("tempo de calculo da dinamica         :", tempo_calculo_din)
-        print("atrazo total                         :", fim_calculo-begin-game.player.t[-1])
+        #print("tempo de calculo da dinamica         :", tempo_calculo_din)
+        #print("atrazo total                         :", fim_calculo-begin-game.player.t[-1])
         
-        print("tempo :", game.player.t[-1], "          rbarra :", game.player.rbarra, "         pos :", game.player.pos)
-        print("erroCA :", game.player.erroCa[-1], "    erroCw :", game.player.erroCp[-1], "     erroCp", game.player.erroCp[-1])
+        
     #atualizar a tela
     pygame.display.flip()
