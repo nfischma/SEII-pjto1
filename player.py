@@ -18,13 +18,14 @@ class Player(pygame.sprite.Sprite):
         self.m = 0.250 #kg
         self.Iz = 2*10**(-4) #kg.m2
         self.l = 0.1 #m
-        self.wmax = 15000 #rpm
+        self.wmax = 15000#*2*math.pi/60 #rad/s   
         self.kf = 1.744*10**(-8) #constante de força
         #parametros do jogo
         self.image = pygame.image.load('assets/drone/drone_1.png')
         self.rect = self.image.get_rect()
-        self.rect.x = 335
-        self.rect.y = 760
+        self.pos_init = [335,760]
+        self.rect.x = self.pos_init[0]
+        self.rect.y = self.pos_init[1]
         self.rot = pygame.transform.rotate(self.image, 0)
         self.pos_rot = np.transpose(np.array([self.rect.x-self.rot.get_rect().width/2, self.rect.y-self.rot.get_rect().height/2]))
         self.colisaoh = "none"
@@ -35,7 +36,7 @@ class Player(pygame.sprite.Sprite):
         self.t = [0.0,self.tau]
 
         #Forca peso
-        self.P = -self.m*9.8 #N
+        self.P = self.m*9.8 #N
 
         #r
         #posicao
@@ -58,6 +59,8 @@ class Player(pygame.sprite.Sprite):
         self.phi = [self.angle, self.angle]
         #comando de angulo
         self.phibarra = 0.0
+        #angule da forca total
+        self.alpha = 0.0
 
         #omega
         #velocidade angular
@@ -84,6 +87,8 @@ class Player(pygame.sprite.Sprite):
         self.Fcs = [np.transpose(np.array([ 0.0, 0.0]))]
         #Fc de comando
         self.Fcbarra = np.transpose(np.array([ 0.0, 0.0]))
+        #Forca total
+        self.Ft = np.transpose(np.array([ 0.0, 0.0]))
 
         #Tc
         #torque de controle
@@ -106,11 +111,13 @@ class Player(pygame.sprite.Sprite):
         self.omega = self.dphi[-1]
         self.rot = pygame.transform.rotate(self.image, self.angle)
         self.pos_rot[0] = self.rect.x-self.rot.get_rect().width/2 
+        self.pos_rot[1] = self.rect.y-self.rot.get_rect().height/2
 
         #atualizar posicao
-        self.pos[0] = self.pos_rot[0] + self.r[:,-1][0]/100
-        self.pos[1] = self.pos_rot[1] + self.r[:,-1][1]/100
-
+        self.pos[0] = self.pos_rot[0] + self.r[:,-1][0]/10
+        self.pos[1] = self.pos_rot[1] + self.r[:,-1][1]/10
+        print("R ATUALIZADO :", self.r[:,-1], self.r[:,-1][0],self.r[:,-1][1])
+        print("pos :", self.pos)
         #atualizar rect
         self.rect.y = self.pos[1]+self.rot.get_rect().height/2
         self.rect.x = self.pos[0]+self.rot.get_rect().width/2 
@@ -121,21 +128,9 @@ class Player(pygame.sprite.Sprite):
         #entrada r,v e saida Fcbarra, phibarra
         #parametros pid
         Kp = 1.0;
-        Ki = 10.0;
-        Kd = 1.0;
+        Ki = 1.0;
+        Kd = 0.1;
 
-        #phibarra
-        self.phibarra = math.atan2(self.rbarra[1]-self.pos[1], self.rbarra[0]-self.pos[0])
-        if(self.phibarra > math.pi / 2):
-            if self.phibarra%(2*math.pi) > math.pi / 2 and self.phibarra%(2*math.pi) < 3*math.pi / 2 :
-                self.phibarra = self.phibarra%(2*math.pi) - math.pi
-            else: 
-                self.phibarra = self.phibarra%(2*math.pi)
-        elif(self.phibarra < -math.pi / 2):
-            if self.phibarra%(2*math.pi) <-math.pi/2 and self.phibarra%(2*math.pi) >-3*math.pi/2 :
-                self.phibarra = self.phibarra%(2*math.pi) + math.pi
-            else: 
-                self.phibarra = self.phibarra %(2*math.pi)
         #calculo do erro para Fcbarra
         erro = self.rbarra - self.r[:,-1]
         self.erroCp += [math.sqrt(erro[0]**2 + erro[1]**2)]
@@ -145,10 +140,35 @@ class Player(pygame.sprite.Sprite):
         Cpi = Ki*(self.erroCp[-1]+self.erroCp[-2])*self.tau/2
         Cpd = Kd*math.sqrt(self.dr[:,-1][0]**2+self.dr[:,-1][1]**2)
         
-        self.Fcbarra = Cpp + Cpi + Cpd
+        self.Ft = Cpp + Cpi + Cpd
+        #alpha
+        self.alpha = math.atan2(self.rbarra[1]-self.pos[1], self.rbarra[0]-self.pos[0])
+
+        if self.Ft*math.sin(self.alpha)<-self.P:
+            self.Ft = -self.P
+
         print("Cp")
         print("r :", self.r[:,-1], "      v :", self.dr[:,-1])
+
+
+        
+        self.phibarra = math.atan2(self.Ft*math.sin(self.alpha),(self.Ft*math.cos(self.alpha)+self.P))
+        self.Fcbarra = self.Ft*math.sin(self.alpha)/math.sin(self.phibarra)
         print("fcbarra :", self.Fcbarra, "      phibarra :", self.phibarra)
+        
+
+        
+        # if(self.phibarra > math.pi / 2):
+        #     if self.phibarra%(2*math.pi) > math.pi / 2 and self.phibarra%(2*math.pi) < 3*math.pi / 2 :
+        #         self.phibarra = self.phibarra%(2*math.pi) - math.pi
+        #     else: 
+        #         self.phibarra = self.phibarra%(2*math.pi)
+        # elif(self.phibarra < -math.pi / 2):
+        #     if self.phibarra%(2*math.pi) <-math.pi/2 and self.phibarra%(2*math.pi) >-3*math.pi/2 :
+        #         self.phibarra = self.phibarra%(2*math.pi) + math.pi
+        #     else: 
+        #         self.phibarra = self.phibarra %(2*math.pi)
+       
 
 
     def Ca(self):
@@ -157,7 +177,7 @@ class Player(pygame.sprite.Sprite):
         #parametros pid
         Kp = 1.0;
         Ki = 1.0;
-        Kd = 10.0;
+        Kd = 5.0;
 
         #calculo do erro para Tcbarra
         self.erroCa += [self.phibarra-self.phi[-1]]
@@ -203,7 +223,7 @@ class Player(pygame.sprite.Sprite):
         m = 0.250           #kg
         Iz = 2*10**(-4)     #kg.m2
         l = 0.1             #m
-        wmax = 15000        #rpm
+        wmax = 15000#*2*math.pi/60        #rpm
         kf = 1.744*10**(-8) #constante de força
         P = m*9.8           #N
 
@@ -234,7 +254,7 @@ class Player(pygame.sprite.Sprite):
         rp[1] = v[1]
         vp = [0.0, 0.0]
         vp = np.dot(Drb,Fc)/m
-        vp[1] = vp[1] + P/m
+        vp[1] = vp[1] - P/m
         vp = vp.tolist()
         phip = omega
         dphip = Tc/Iz

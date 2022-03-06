@@ -47,8 +47,8 @@ while running:
             game.pressed[event.key]=False
         elif event.type == pygame.MOUSEBUTTONDOWN:
             game.position = [a-b for a, b in zip(pygame.mouse.get_pos(),(65,40))]
-            game.player.rbarra[0] = game.position[0]
-            game.player.rbarra[1] = game.position[1]
+            game.player.rbarra[0] = game.position[0]-game.player.pos_init[0]
+            game.player.rbarra[1] = -game.position[1]+game.player.pos_init[1]
             #playerrot = pygame.transform.rotate(game.player.image, 360-angle*57.29)
 
 
