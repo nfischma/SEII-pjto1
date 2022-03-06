@@ -76,5 +76,6 @@ while running:
         print("atrazo total                         :", fim_calculo-begin-game.player.t[-1])
         
         print("tempo :", game.player.t[-1], "          rbarra :", game.player.rbarra, "         pos :", game.player.pos)
+        print("erroCA :", game.player.erroCa[-1], "    erroCw :", game.player.erroCp[-1], "     erroCp", game.player.erroCp[-1])
     #atualizar a tela
     pygame.display.flip()

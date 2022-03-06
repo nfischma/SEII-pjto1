@@ -121,8 +121,8 @@ class Player(pygame.sprite.Sprite):
         #entrada r,v e saida Fcbarra, phibarra
         #parametros pid
         Kp = 1.0;
-        Ki = 0.0;
-        Kd = 0.0;
+        Ki = 1.0;
+        Kd = 1.0;
 
         #phibarra
         self.phibarra = math.atan2(self.rbarra[1]-self.pos[1], self.rbarra[0]-self.pos[0])
@@ -144,8 +144,8 @@ class Player(pygame.sprite.Sprite):
         #entrada phi,omega e saida Tcbarra
         #parametros pid
         Kp = 1.0;
-        Ki = 0.0;
-        Kd = 0.0;
+        Ki = 1.0;
+        Kd = 1.0;
 
         #calculo do erro para Tcbarra
         self.erroCa += [self.phibarra-self.phi[-1]]
@@ -193,6 +193,13 @@ class Player(pygame.sprite.Sprite):
         wp = [0.0, 0.0]
         wp[0] = (-w[0]+wbarra[0])/tau
         wp[1] = (-w[1]+wbarra[1])/tau
+        
+        for wrotor in wp:
+            if wrotor > wmax:
+                wrtor = wmax
+            elif wrotor < -wmax:
+                wrotor = -wmax
+        
         rp = [0.0, 0.0]
         rp[0] = v[0]
         rp[1] = v[1]
