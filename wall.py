@@ -35,11 +35,8 @@ class Wall(pygame.sprite.Sprite):
             return "none"
         
     def detecao_colisaov(self,player_pos):
-        print("x : ",player_pos[1], self.ymin, self.ymax)
-        print("y : ",player_pos[0], self.xmin, self.xmax)
         if  player_pos[1] > self.ymin and player_pos[1] < self.ymax and player_pos[0] >  self.xmin and player_pos[0] < self.xmax:
             return self.lado
-            print("self.lado, self.lado, self.lado")
         else:
             return "none"
     

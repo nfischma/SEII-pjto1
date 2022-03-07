@@ -16,7 +16,10 @@ class Game:
         self.player.rbarra[0] = self.position[0]
         self.player.rbarra[1] = self.position[1]
 
-        self.wall1 = Wall("down",[0,800],[1620,960])
+        self.wall_down = Wall("down",[0,800],[1620,960])
+        self.wall_left = Wall("left",[0,0],[200,960])
+        self.wall_right = Wall("right",[1400,0],[1620,960])
+        self.wall_up = Wall("up",[0,0], [1620,200])
 
-        self.walls = [self.wall1]
+        self.walls = [self.wall_up, self.wall_left, self.wall_right, self.wall_down]
 

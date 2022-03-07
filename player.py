@@ -44,7 +44,7 @@ class Player(pygame.sprite.Sprite):
         #listas posiçoes
         self.r = np.array([[0.0,0.0],[0.0,0.0]])
         #comando de posicao
-        self.rbarra = [0.0,0.0]
+        self.rbarra = [0.0,100.0]
 
         #v
         #velocidade linear
@@ -116,8 +116,6 @@ class Player(pygame.sprite.Sprite):
         #atualizar posicao
         self.pos[0] = self.pos_rot[0] + self.r[:,-1][0]/10
         self.pos[1] = self.pos_rot[1] + self.r[:,-1][1]/10
-        print("R ATUALIZADO :", self.r[:,-1], self.r[:,-1][0],self.r[:,-1][1])
-        print("pos :", self.pos)
         #atualizar rect
         self.rect.y = self.pos[1]+self.rot.get_rect().height/2
         self.rect.x = self.pos[0]+self.rot.get_rect().width/2 
@@ -127,13 +125,16 @@ class Player(pygame.sprite.Sprite):
         #Controlador da posicção: 
         #entrada r,v e saida Fcbarra, phibarra
         #parametros pid
-        Kp = 1.0;
-        Ki = 1.0;
-        Kd = 0.1;
+        Kp = 2.0;
+        Ki = 2.0;
+        Kd = 10.0;
 
         #calculo do erro para Fcbarra
         erro = self.rbarra - self.r[:,-1]
-        self.erroCp += [math.sqrt(erro[0]**2 + erro[1]**2)]
+        if self.rbarra[1]-self.r[:,-1][1] >= 0.0:
+            self.erroCp += [math.sqrt(erro[0]**2 + erro[1]**2)]
+        else:
+            self.erroCp += [-math.sqrt(erro[0]**2 + erro[1]**2)]
 
         #correção do erro
         Cpp = Kp*self.erroCp[-1]
@@ -153,31 +154,25 @@ class Player(pygame.sprite.Sprite):
 
         
         self.phibarra = math.atan2(self.Ft*math.sin(self.alpha),(self.Ft*math.cos(self.alpha)+self.P))
+        if self.phibarra%math.pi*2 > math.pi /2 : 
+            self.phibarra = math.pi - self.phibarra%math.pi
+        elif self.phibarra%math.pi*2 < -math.pi/2:
+            self.phibarra = -math.pi -self.phibarra%math.pi
+
         self.Fcbarra = self.Ft*math.sin(self.alpha)/math.sin(self.phibarra)
         print("fcbarra :", self.Fcbarra, "      phibarra :", self.phibarra)
         
 
-
-        # if(self.phibarra > math.pi / 2):
-        #     if self.phibarra%(2*math.pi) > math.pi / 2 and self.phibarra%(2*math.pi) < 3*math.pi / 2 :
-        #         self.phibarra = self.phibarra%(2*math.pi) - math.pi
-        #     else: 
-        #         self.phibarra = self.phibarra%(2*math.pi)
-        # elif(self.phibarra < -math.pi / 2):
-        #     if self.phibarra%(2*math.pi) <-math.pi/2 and self.phibarra%(2*math.pi) >-3*math.pi/2 :
-        #         self.phibarra = self.phibarra%(2*math.pi) + math.pi
-        #     else: 
-        #         self.phibarra = self.phibarra %(2*math.pi)
        
 
 
     def Ca(self):
         #controlador do angulo
-        #entrada phi,omega e saida Tcbarra
+        #entrada phibarra, phi,omega e saida Tcbarra
         #parametros pid
-        Kp = 1.0;
-        Ki = 1.0;
-        Kd = 5.0;
+        Kp = 0.5;
+        Ki = 0.7;
+        Kd = 10.0;
 
         #calculo do erro para Tcbarra
         self.erroCa += [self.phibarra-self.phi[-1]]
@@ -303,25 +298,29 @@ class Player(pygame.sprite.Sprite):
         self.phi += [sol[:,6][-1]]
         self.dphi += [sol[:,7][-1]]
         self.t += [self.t[-1] + tempo]
+
+        self.rebote()
         
     def rebote(self):
-        print("colisaoh :", self.colisaoh, "        colisaov :", self.colisaov)
-        print("dx :", self.dr[:,-1][0], "         dy :", self.dr[:,-1][1])
         if self.colisaoh == "right" and self.dr[:,-1][0] > 0:
             self.dr[:,-1][0] = -self.dr[:,-1][0]*80/100
-            self.velocitu[0] = -self.velocity[0]
+            self.dr[:,-2][0] = -self.dr[:,-2][0]*80/100
+            self.velocity[0] = -self.velocity[0]
             self.colisaoh = "none"
         elif self.colisaoh == "left" and self.dr[:,-1][0] < 0:
             self.dr[:,-1][0] = -self.dr[:,-1][0]*80/100
+            self.dr[:,-2][0] = -self.dr[:,-2][0]*80/100
             self.velocity[0] = -self.velocity[0]
             self.colisaoh = "none"
         if self.colisaov == "up" and self.dr[:,-1][1] < 0:
             self.dr[:,-1][1] = -self.dr[:,-1][1]*80/100
+            self.dr[:,-2][1] = -self.dr[:,-2][1]*80/100
             self.velocity[1] = -self.velocity[1]
             self.colisaov = "none"
         elif self.colisaov == "down" and self.dr[:,-1][1] > 0:
-            self.dr[:,-1][1] = -self.dr[:,-1][1]*80/100
-            self.velocity[1] = -self.velocity[1]
+            self.dr[:,-1][1] = -self.dr[:,-1][1]
+            self.dr[:,-2][1] = -self.dr[:,-2][1]*80/100
+            self.velocity[1] = 20
             self.colisaov = "none"
         
 

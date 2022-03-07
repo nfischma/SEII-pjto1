@@ -54,7 +54,7 @@ while running:
 
     if time.time()-clock >= game.player.tau:
         
-                #Detetar colisao
+        #Detetar colisao
         for wall in game.walls:
             print("tipo de muro :", wall.tipo)
             if wall.tipo == "horizontal":
@@ -62,13 +62,8 @@ while running:
             elif wall.tipo == "vertical":
                 game.player.colisaov = wall.detecao_colisaov(game.player.pos)
         
-        #rebotar
-        game.player.rebote()
-        
         print("")
         print("")
-        print("tempo :", game.player.t[-1], "          rbarra :", game.player.rbarra, "         pos :", game.player.pos)
-        print("erroCA :", game.player.erroCa[-1], "    erroCw :", game.player.erroCp[-1], "     erroCp", game.player.erroCp[-1])
         #mostrar o background
         screen.blit(background, (0, 0))
 
