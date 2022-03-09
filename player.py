@@ -178,6 +178,7 @@ class Player(pygame.sprite.Sprite):
         self.erroCa += [self.phibarra-self.phi[-1]]
         print("Ca")
         print("phi :", self.phi[-1],"      self.dphi :", self.dphi[-1])
+        
         #correção do erro
         Cpp = Kp*self.erroCa[-1]
         Cpi = Ki*(self.erroCa[-1]+self.erroCa[-2])*self.tau/2
@@ -286,7 +287,7 @@ class Player(pygame.sprite.Sprite):
 
         #TENTAR COM RK4
         #calculo eq. dif.
-        sol = odeint(self.din_robo, x0, [0.0, self.tau], args=(self.wbarra,tempo,))
+        sol = odeint(self.din_robo, x0, [0.0, tempo], args=(self.wbarra,tempo,))
         
         #solucao eq. dif.
         self.w[0] = sol[:,0][-1]
