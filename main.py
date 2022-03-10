@@ -79,7 +79,42 @@ while running:
         fim_calculo = time.time()
         tempo_calculo_din = fim_calculo - comeco_calculo
 
+    if time.time()-begin>10:
+        rbarra = np.zeros(len(game.player.t))
+        for i in range(len(rbarra)):
+            rbarra[i] = game.player.rbarra[1]
+        plt.plot(game.player.t, rbarra, label = 'rbarra')
+        plt.plot(game.player.t, game.player.r[1], label = 'r')
+        plt.plot(game.player.t, game.player.dr[1], label = 'dr')
+        plt.legend(loc='best')
+        plt.xlabel('t')
+        plt.ylabel('yr')
+        plt.grid()
+        plt.show()
 
+        rbarra = np.zeros(len(game.player.t))
+        for i in range(len(rbarra)):
+            rbarra[i] = game.player.rbarra[0]
+        plt.plot(game.player.t, rbarra, label = 'rbarra')
+        plt.plot(game.player.t, game.player.r[0], label = 'r')
+        plt.plot(game.player.t, game.player.dr[0], label = 'dr')
+        plt.legend(loc='best')
+        plt.xlabel('t')
+        plt.ylabel('xr')
+        plt.grid()
+        plt.show()
+
+        
+        plt.plot(game.player.t, game.player.phibarra, label = 'phibarra')
+        plt.plot(game.player.t, game.player.phi, label = 'phi')
+        plt.plot(game.player.t, game.player.dphi, label = 'dphi')
+        plt.legend(loc='best')
+        plt.xlabel('t')
+        plt.ylabel('phi')
+        plt.grid()
+        plt.show()
+        running = False
+        pygame.quit()
 
 
         
