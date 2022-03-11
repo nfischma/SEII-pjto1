@@ -473,19 +473,19 @@ class Player(pygame.sprite.Sprite):
 
     def rebote(self):
         if self.colisaoh == "right" and self.dr[:,-1][0] > 0:
-            self.dr[:,-1][0] = -self.dr[:,-1][0]
-            self.dr[:,-2][0] = -self.dr[:,-2][0]
-            self.velocity[0] = -self.velocity[0]
+            self.dr[:,-1][0] = -self.dr[:,-1][0]*80/100
+            self.dr[:,-2][0] = -self.dr[:,-2][0]*80/100
+            self.velocity[0] = -self.velocity[0]*80/100
             self.colisaoh = "none"
         elif self.colisaoh == "left" and self.dr[:,-1][0] < 0:
-            self.dr[:,-1][0] = -self.dr[:,-1][0]
-            self.dr[:,-2][0] = -self.dr[:,-2][0]
-            self.velocity[0] = -self.velocity[0]
+            self.dr[:,-1][0] = -self.dr[:,-1][0]*80/100
+            self.dr[:,-2][0] = -self.dr[:,-2][0]*80/100
+            self.velocity[0] = -self.velocity[0]*80/100
             self.colisaoh = "none"
         if self.colisaov == "up" and self.dr[:,-1][1] < 0:
-            self.dr[:,-1][1] = -self.dr[:,-1][1]
-            self.dr[:,-2][1] = -self.dr[:,-2][1]
-            self.velocity[1] = -self.velocity[1]
+            self.dr[:,-1][1] = -self.dr[:,-1][1]*80/100
+            self.dr[:,-2][1] = -self.dr[:,-2][1]*80/100
+            self.velocity[1] = -self.velocity[1]*80/100
             self.colisaov = "none"
         elif self.colisaov == "down" and self.dr[:,-1][1] > 0:
             self.dr[:,-1][1] = -self.dr[:,-1][1]*80/100
