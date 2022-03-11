@@ -6,6 +6,8 @@
 
 - A física do jogo é baseada na modelagem matématica da malha de controle deste drone.
 
+- Link da pasta com o vídeo: https://drive.google.com/drive/folders/1E9raGTEFmUjeHBU8yT4kurGGRoWdPpbN
+
 <br>
 
 ## 🛠 Desenvolvedores
