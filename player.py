@@ -121,141 +121,141 @@ class Player(pygame.sprite.Sprite):
         self.rect.x = self.pos[0]+self.rot.get_rect().width/2 
 
 
-    def Cp(self):
-        #Controlador da posicção: 
-        #entrada r,v e saida Fcbarra, phibarra
-        #parametros pid
-        Kp = 1.0;
-        Ki = 0.5;
-        Kd = 1.0;
+    # def Cp(self):
+    #     #Controlador da posicção: 
+    #     #entrada r,v e saida Fcbarra, phibarra
+    #     #parametros pid
+    #     Kp = 1.0;
+    #     Ki = 0.5;
+    #     Kd = 1.0;
 
-        #calculo do erro para Fcbarra
-        erro = self.rbarra - self.r[:,-1]
-        if self.rbarra[1]-self.r[:,-1][1] >= 0.0:
-            self.erroCp += [math.sqrt(erro[0]**2 + erro[1]**2)]
-        else:
-            self.erroCp += [-math.sqrt(erro[0]**2 + erro[1]**2)]
+    #     #calculo do erro para Fcbarra
+    #     erro = self.rbarra - self.r[:,-1]
+    #     if self.rbarra[1]-self.r[:,-1][1] >= 0.0:
+    #         self.erroCp += [math.sqrt(erro[0]**2 + erro[1]**2)]
+    #     else:
+    #         self.erroCp += [-math.sqrt(erro[0]**2 + erro[1]**2)]
 
-        #correção do erro
-        Cpp = Kp*self.erroCp[-1]
-        Cpi = Ki*(self.erroCp[-1]+self.erroCp[-2])*self.tau/2
-        Cpd = Kd*math.sqrt(self.dr[:,-1][0]**2+self.dr[:,-1][1]**2)
+    #     #correção do erro
+    #     Cpp = Kp*self.erroCp[-1]
+    #     Cpi = Ki*(self.erroCp[-1]+self.erroCp[-2])*self.tau/2
+    #     Cpd = Kd*math.sqrt(self.dr[:,-1][0]**2+self.dr[:,-1][1]**2)
         
-        self.Ft = Cpp + Cpi + Cpd
-        #alpha
-        self.alpha = math.atan2(self.rbarra[1]-self.pos[1], self.rbarra[0]-self.pos[0])
+    #     self.Ft = Cpp + Cpi + Cpd
+    #     #alpha
+    #     self.alpha = math.atan2(self.rbarra[1]-self.pos[1], self.rbarra[0]-self.pos[0])
 
-        if self.Ft*math.sin(self.alpha)<-self.P:
-            self.Ft = -self.P
+    #     if self.Ft*math.sin(self.alpha)<-self.P:
+    #         self.Ft = -self.P
 
-        print("Cp")
-        print("r :", self.r[:,-1], "      v :", self.dr[:,-1])
+    #     print("Cp")
+    #     print("r :", self.r[:,-1], "      v :", self.dr[:,-1])
 
 
         
-        self.phibarra += [math.atan2(self.Ft*math.sin(self.alpha),(self.Ft*math.cos(self.alpha)+self.P))]
-        if self.phibarra[-1]%math.pi*2 > math.pi /2 : 
-            self.phibarra[-1] = math.pi - self.phibarra[-1]%math.pi
-        elif self.phibarra[-1]%math.pi*2 < -math.pi/2:
-            self.phibarra[-1] = -math.pi -self.phibarra[-1]%math.pi
+    #     self.phibarra += [math.atan2(self.Ft*math.sin(self.alpha),(self.Ft*math.cos(self.alpha)+self.P))]
+    #     if self.phibarra[-1]%math.pi*2 > math.pi /2 : 
+    #         self.phibarra[-1] = math.pi - self.phibarra[-1]%math.pi
+    #     elif self.phibarra[-1]%math.pi*2 < -math.pi/2:
+    #         self.phibarra[-1] = -math.pi -self.phibarra[-1]%math.pi
 
-        self.Fcbarra = self.Ft*math.sin(self.alpha)/math.sin(self.phibarra[-1])
-        print("fcbarra :", self.Fcbarra, "      phibarra :", self.phibarra)
+    #     self.Fcbarra = self.Ft*math.sin(self.alpha)/math.sin(self.phibarra[-1])
+    #     print("fcbarra :", self.Fcbarra, "      phibarra :", self.phibarra)
         
 
        
 
 
-    def Ca(self):
-        #controlador do angulo
-        #entrada phibarra, phi,omega e saida Tcbarra
-        #parametros pid
-        Kp = 1.0;
-        Ki = 0.0;
-        Kd = 0.0
+    # def Ca(self):
+    #     #controlador do angulo
+    #     #entrada phibarra, phi,omega e saida Tcbarra
+    #     #parametros pid
+    #     Kp = 1.0;
+    #     Ki = 0.0;
+    #     Kd = 0.0
 
-        #calculo do erro para Tcbarra
-        self.erroCa += [self.phibarra[-1]-self.phi[-1]]
-        print("Ca")
-        print("phi :", self.phi[-1],"      self.dphi :", self.dphi[-1])
+    #     #calculo do erro para Tcbarra
+    #     self.erroCa += [self.phibarra[-1]-self.phi[-1]]
+    #     print("Ca")
+    #     print("phi :", self.phi[-1],"      self.dphi :", self.dphi[-1])
         
-        #correção do erro
-        Cpp = Kp*self.erroCa[-1]
-        Cpi = Ki*(self.erroCa[-1]+self.erroCa[-2])*self.tau/2
-        Cpd = Kd*self.dphi[-1]
-        print("Tcbarra :", self.Tcbarra)
-        self.Tcbarra = Cpp + Cpi + Cpd
+    #     #correção do erro
+    #     Cpp = Kp*self.erroCa[-1]
+    #     Cpi = Ki*(self.erroCa[-1]+self.erroCa[-2])*self.tau/2
+    #     Cpd = Kd*self.dphi[-1]
+    #     print("Tcbarra :", self.Tcbarra)
+    #     self.Tcbarra = Cpp + Cpi + Cpd
 
 
-    def Cw(self):
-        #Controlador dos motores:
-        #entrada Fcbarra,Tcbarra e saida wbarra
-        F1 = (self.Fcbarra+self.Tcbarra/self.l)/2
-        F2 = (self.Fcbarra-self.Tcbarra/self.l)/2
-        self.wbarra[1] = math.sqrt(abs(F1))/self.kf
-        self.wbarra[0] = math.sqrt(abs(F2))/self.kf
-        if abs(self.wbarra[0])> self.wmax and abs(self.wbarra[1])>self.wmax:
-            maxi = 0 
-            for i in range(len(self.wbarra)):
-                if(self.wbarra[i]>maxi):
-                    maxi = self.wbarra[i]
-            self.wbarra[0] = self.wbarra[0]*self.wmax/maxi
-            self.wbarra[1] = self.wbarra[1]*self.wmax/maxi
-        else:
-            for wrotor in self.wbarra:
-                if wrotor > self.wmax:
-                    wrtor = self.wmax
-                elif wrotor < -self.wmax:
-                    wrotor = -self.wmax
-        print("Cw")
-        print("Fcbarra :", self.Fcbarra, "      Tcbarra :", self.Tcbarra)
-        print("wbarra :", self.wbarra)
+    # def Cw(self):
+    #     #Controlador dos motores:
+    #     #entrada Fcbarra,Tcbarra e saida wbarra
+    #     F1 = (self.Fcbarra+self.Tcbarra/self.l)/2
+    #     F2 = (self.Fcbarra-self.Tcbarra/self.l)/2
+    #     self.wbarra[1] = math.sqrt(abs(F1))/self.kf
+    #     self.wbarra[0] = math.sqrt(abs(F2))/self.kf
+    #     if abs(self.wbarra[0])> self.wmax and abs(self.wbarra[1])>self.wmax:
+    #         maxi = 0 
+    #         for i in range(len(self.wbarra)):
+    #             if(self.wbarra[i]>maxi):
+    #                 maxi = self.wbarra[i]
+    #         self.wbarra[0] = self.wbarra[0]*self.wmax/maxi
+    #         self.wbarra[1] = self.wbarra[1]*self.wmax/maxi
+    #     else:
+    #         for wrotor in self.wbarra:
+    #             if wrotor > self.wmax:
+    #                 wrtor = self.wmax
+    #             elif wrotor < -self.wmax:
+    #                 wrotor = -self.wmax
+    #     print("Cw")
+    #     print("Fcbarra :", self.Fcbarra, "      Tcbarra :", self.Tcbarra)
+    #     print("wbarra :", self.wbarra)
         
 
-    def din_robo(self, y, t, wbarra, tempo):
-        # Parametros da planta
-         #parametros
-        tau = tempo         #cste de tempo
-        m = 0.250           #kg
-        Iz = 2*10**(-4)     #kg.m2
-        l = 0.1             #m
-        wmax = 15000#*2*math.pi/60        #rpm
-        kf = 1.744*10**(-8) #constante de força
-        P = m*9.8           #N
+    # def din_robo(self, y, t, wbarra, tempo):
+    #     # Parametros da planta
+    #      #parametros
+    #     tau = tempo         #cste de tempo
+    #     m = 0.250           #kg
+    #     Iz = 2*10**(-4)     #kg.m2
+    #     l = 0.1             #m
+    #     wmax = 15000#*2*math.pi/60        #rpm
+    #     kf = 1.744*10**(-8) #constante de força
+    #     P = m*9.8           #N
 
-        w0,w1, r0,r1, v0,v1, phi, omega = y
-        w = [w0,w1]
-        r = [r0,r1]
-        v = [v0,v1]
-        #forca de controle
-        Fc = np.transpose(np.array([0,kf*(w[1]**2+w[0]**2)]))
-        #torque de controle
-        Tc = l*kf*(w[0]**2-w[1]**2)
-        #Matriz de rotação
-        Drb = np.array([[math.cos((phi)*0.0174533), -math.sin((phi)*0.0174533)],[math.sin((phi)*0.0174533), math.cos((phi)*0.0174533)]])
+    #     w0,w1, r0,r1, v0,v1, phi, omega = y
+    #     w = [w0,w1]
+    #     r = [r0,r1]
+    #     v = [v0,v1]
+    #     #forca de controle
+    #     Fc = np.transpose(np.array([0,kf*(w[1]**2+w[0]**2)]))
+    #     #torque de controle
+    #     Tc = l*kf*(w[0]**2-w[1]**2)
+    #     #Matriz de rotação
+    #     Drb = np.array([[math.cos((phi)*0.0174533), -math.sin((phi)*0.0174533)],[math.sin((phi)*0.0174533), math.cos((phi)*0.0174533)]])
 
-        # Dinamica do robo
-        wp = [0.0, 0.0]
-        wp[0] = (-w[0]+wbarra[0])/tau
-        wp[1] = (-w[1]+wbarra[1])/tau
+    #     # Dinamica do robo
+    #     wp = [0.0, 0.0]
+    #     wp[0] = (-w[0]+wbarra[0])/tau
+    #     wp[1] = (-w[1]+wbarra[1])/tau
         
-        for wrotor in wp:
-            if wrotor > wmax:
-                wrtor = wmax
-            elif wrotor < -wmax:
-                wrotor = -wmax
+    #     for wrotor in wp:
+    #         if wrotor > wmax:
+    #             wrtor = wmax
+    #         elif wrotor < -wmax:
+    #             wrotor = -wmax
         
-        rp = [0.0, 0.0]
-        rp[0] = v[0]
-        rp[1] = v[1]
-        vp = [0.0, 0.0]
-        vp = np.dot(Drb,Fc)/m
-        vp[1] = vp[1] - P/m
-        vp = vp.tolist()
-        phip = omega
-        dphip = Tc/Iz
-        print("test :", [wp[0],wp[1], rp[0],rp[1], vp[0],vp[1], phip, dphip])
-        return [wp[0],wp[1], rp[0],rp[1], vp[0],vp[1], phip, dphip]
+    #     rp = [0.0, 0.0]
+    #     rp[0] = v[0]
+    #     rp[1] = v[1]
+    #     vp = [0.0, 0.0]
+    #     vp = np.dot(Drb,Fc)/m
+    #     vp[1] = vp[1] - P/m
+    #     vp = vp.tolist()
+    #     phip = omega
+    #     dphip = Tc/Iz
+    #     print("test :", [wp[0],wp[1], rp[0],rp[1], vp[0],vp[1], phip, dphip])
+    #     return [wp[0],wp[1], rp[0],rp[1], vp[0],vp[1], phip, dphip]
 
     def rk4(self, tk, h, xk, uk):
         k1 = np.array(self.x_dot(tk, xk, uk))
@@ -497,52 +497,52 @@ class Player(pygame.sprite.Sprite):
 
 
 
-    def atualizar_dinamica_2(self, tempo):
-            #posicao e angulo na tela
-            self.atualizar_posicao_tela()
+    # def atualizar_dinamica_2(self, tempo):
+    #         #posicao e angulo na tela
+    #         self.atualizar_posicao_tela()
 
-            #FC e phibarra
-            self.Cp()
-            #Tc
-            self.Ca()
-            #wbarras
-            self.Cw()
+    #         #FC e phibarra
+    #         self.Cp()
+    #         #Tc
+    #         self.Ca()
+    #         #wbarras
+    #         self.Cw()
             
 
-            #dinamica robo
-            # Evoluindo a din. da planta
-            #condições iniciais
-            w0 = self.w
-            w0 = w0.tolist()
-            r0 = self.r[:,-1]
-            r0[1] = r0[1]
-            r0 = r0.tolist()
-            v0 = self.dr[:,-1]
-            v0[1] = v0[1]
-            v0 = v0.tolist()
-            phi0 = self.phi[-1]
-            dphi0 = self.dphi[-1]
-            x0 = [w0[0], w0[1], r0[0], r0[1], v0[0], v0[1], phi0, dphi0]   # condicao inicial
+    #         #dinamica robo
+    #         # Evoluindo a din. da planta
+    #         #condições iniciais
+    #         w0 = self.w
+    #         w0 = w0.tolist()
+    #         r0 = self.r[:,-1]
+    #         r0[1] = r0[1]
+    #         r0 = r0.tolist()
+    #         v0 = self.dr[:,-1]
+    #         v0[1] = v0[1]
+    #         v0 = v0.tolist()
+    #         phi0 = self.phi[-1]
+    #         dphi0 = self.dphi[-1]
+    #         x0 = [w0[0], w0[1], r0[0], r0[1], v0[0], v0[1], phi0, dphi0]   # condicao inicial
 
-            #TENTAR COM RK4
-            #calculo eq. dif.
-            sol = self.rk4(self.din_robo, x0, [self.t[-1], self.t[-1]+tempo], args = (self.wbarra, tempo))
-            #sol = odeint(self.din_robo, x0, [0.0, tempo], args=(self.wbarra,tempo,))
-            print("[w0[0], w0[1], r0[0], r0[1], v0[0], v0[1], phi0, dphi0] ")
-            print(x0)
-            print(sol[:,0][-1], sol[:,1][-1], sol[:,2][-1], sol[:,3][-1], sol[:,4][-1], sol[:,5][-1], sol[:,6][-1], sol[:,7][-1])
-            #solucao eq. dif.
-            self.w[0] = sol[:,0][-1]
-            self.w[1] = sol[:,1][-1]
-            r1 = np.transpose(np.array([[sol[:,2][-1],sol[:,3][-1]]]))
-            self.r = np.concatenate((self.r,r1), axis=1)
-            dr1 = np.transpose(np.array([[sol[:,4][-1],sol[:,5][-1]]]))
-            self.dr = np.concatenate((self.dr,dr1), axis=1)
-            self.phi += [sol[:,6][-1]]
-            self.dphi += [sol[:,7][-1]]
-            self.t += [self.t[-1] + tempo]
+    #         #TENTAR COM RK4
+    #         #calculo eq. dif.
+    #         sol = self.rk4(self.din_robo, x0, [self.t[-1], self.t[-1]+tempo], args = (self.wbarra, tempo))
+    #         #sol = odeint(self.din_robo, x0, [0.0, tempo], args=(self.wbarra,tempo,))
+    #         print("[w0[0], w0[1], r0[0], r0[1], v0[0], v0[1], phi0, dphi0] ")
+    #         print(x0)
+    #         print(sol[:,0][-1], sol[:,1][-1], sol[:,2][-1], sol[:,3][-1], sol[:,4][-1], sol[:,5][-1], sol[:,6][-1], sol[:,7][-1])
+    #         #solucao eq. dif.
+    #         self.w[0] = sol[:,0][-1]
+    #         self.w[1] = sol[:,1][-1]
+    #         r1 = np.transpose(np.array([[sol[:,2][-1],sol[:,3][-1]]]))
+    #         self.r = np.concatenate((self.r,r1), axis=1)
+    #         dr1 = np.transpose(np.array([[sol[:,4][-1],sol[:,5][-1]]]))
+    #         self.dr = np.concatenate((self.dr,dr1), axis=1)
+    #         self.phi += [sol[:,6][-1]]
+    #         self.dphi += [sol[:,7][-1]]
+    #         self.t += [self.t[-1] + tempo]
 
-            self.rebote()
+    #         self.rebote()
 
 
 
@@ -559,4 +559,4 @@ class Player(pygame.sprite.Sprite):
 
 if __name__ == "__main__":
     player = Player()
-    player.atualizar_dinamica()
+    player.atualizar_dinamica(0.05)
