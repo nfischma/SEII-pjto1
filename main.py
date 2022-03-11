@@ -48,15 +48,14 @@ while running:
             game.pressed[event.key]=False
         elif event.type == pygame.MOUSEBUTTONDOWN:
             game.position = [a-b for a, b in zip(pygame.mouse.get_pos(),(65,40))]
-            game.player.rbarra[0] = game.position[0]-game.player.pos_init[0]
-            game.player.rbarra[1] = -game.position[1]+game.player.pos_init[1]
+            game.player.rbarra[0] = (game.position[0]-game.player.pos_init[0])
+            game.player.rbarra[1] = (-game.position[1]+game.player.pos_init[1])
 
 
     if time.time()-clock >= game.player.tau:
         
         #Detetar colisao
         for wall in game.walls:
-            print("tipo de muro :", wall.tipo)
             if wall.tipo == "horizontal":
                 game.player.colisaoh = wall.detecao_colisaoh(game.player.pos)
             elif wall.tipo == "vertical":
@@ -73,17 +72,16 @@ while running:
         
         clock = time.time()
         comeco_calculo = time.time()
+        tempo_calculo_din = -fim_calculo + comeco_calculo
         if(fim_calculo==0):
             fim_calculo = comeco_calculo+0.05
         game.player.atualizar_dinamica(tempo_calculo_din) #movimento estatico, precisa ser dinamico
         fim_calculo = time.time()
-        tempo_calculo_din = fim_calculo - comeco_calculo
 
-    if time.time()-begin>10:
-        rbarra = np.zeros(len(game.player.t))
-        for i in range(len(rbarra)):
-            rbarra[i] = game.player.rbarra[1]
-        plt.plot(game.player.t, rbarra, label = 'rbarra')
+  
+
+    if time.time()-begin>40:
+        plt.plot(game.player.t[:-1:], game.player.lrbarra[1], label = 'rbarra')
         plt.plot(game.player.t, game.player.r[1], label = 'r')
         plt.plot(game.player.t, game.player.dr[1], label = 'dr')
         plt.legend(loc='best')
@@ -92,11 +90,9 @@ while running:
         plt.grid()
         plt.show()
 
-        rbarra = np.zeros(len(game.player.t))
-        for i in range(len(rbarra)):
-            rbarra[i] = game.player.rbarra[0]
-        plt.plot(game.player.t, rbarra, label = 'rbarra')
-        plt.plot(game.player.t, game.player.r[0], label = 'r')
+        
+        plt.plot(game.player.t[:-1:], game.player.lrbarra[0], label = 'rbarra')
+        plt.plot(game.player.t,game.player.r[0], label = 'r')
         plt.plot(game.player.t, game.player.dr[0], label = 'dr')
         plt.legend(loc='best')
         plt.xlabel('t')
@@ -115,6 +111,8 @@ while running:
         plt.show()
         running = False
         pygame.quit()
+    
+
 
 
         

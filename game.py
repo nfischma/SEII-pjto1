@@ -12,7 +12,7 @@ class Game:
         self.player = Player()
         self.pressed = {
         }
-
+        self.position = [0.0,0.0]
         self.wall_down = Wall("down",[0,800],[1620,960])
         self.wall_left = Wall("left",[0,0],[200,960])
         self.wall_right = Wall("right",[1400,0],[1620,960])
